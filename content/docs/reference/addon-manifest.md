@@ -362,86 +362,75 @@ Sub-properties:
 Settings allow the addon's users to specify settings in Scratch Addons' settings panel. Inside your userscripts, you can then access those settings with the `addon.settings` API.  
 Specify a `settings` property and provide an array of option objects.
 
-Sub-properties:
-- `name` (string, required) The user-visible text for the option.   
-- `id` (string, required) An identifier to get the user-specified value from your code.  
-- `type` (string, required) Either `boolean` (an on/off toggle), `positive_integer` (an input box that only allows 0 and above), `integer` (an input box that allows any integer) `string` (up to 100 chars),`color` (a browser color input that returns a hex code), `table` (list of elements, where user can add custom elements, remove existing ones and change order of them) or `select` (see `potential_values`).  
-- `default` (string, required) The default value for the option. A boolean, string, or number, depending on the specified type.  
-- `min`/`max` (number, optional for `positive_integer`, `integer`, and `string` types only) For integers, the minimum/maximum value allowed, and for strings, the minimum/maximum allowed length of the value.
-- `potentialValues` (array of objects, required for `select` type only) Array of objects, with properties `id`, the value received from `addon.settings.get()`, and `name`, the user-visible option text.
-- `allowTransparency` (boolean, required for `color` type only) Whether the user should be allowed to enter transparent colors or not.
-- `row` (array of objects, only for `table` type). Every element in table contains this array of objects. Each object should contain: `name`, `id`, `type` (any setting type other than `table`) and `default`. For example:
-  ```json
-  {
-    "row": [
-      {
-        "name": "Playername",
-        "id": "name",
-        "type": "string",
-        "default": ""
-      }
-    ],
-  }
-  ```
-- `if` (object, optional) Only make this setting visible if any of the specified sub-properties evaluates to `true`.
-  
-  **Be careful -- hiding a setting does not revert its value or nullify it. This only affects the settings page UI. If you want to handle a case where this setting is hidden, you must replicate the condition check that results in this setting being hidden.**
-   - `settings` (object, optional) The settings within this addon that must be of specific values. The key(s) are the IDs of the settings, and the value(s) are the corresponding expected values. All key(s) must evaluate to `true` for the sub-property to evaluate to `true`. 
-
-      In the following example, the `signature` setting must equal `true` and the `mode` setting must equal `forums` in order for this setting to be visible. If either of these settings are set to values that do not match the expected values, this setting will not be visible.
-      ```json
-      {
-        "settings": [
-          // ...
-          {
-            "name": "Option",
-            "id": "option",
-            "type": "boolean",
-            "default": false,
-            "if": {
-              "settings": { "signature": true, "mode": "forums" }
-            }
-          }
-        ]
-      }
-      ```
-      An array can also be provided for the value of a key: the key will evaluate to `true` if the setting is set to *any* of the provided values.
-
-      In the following example, the `mode` setting may equal either `forums` or `new` for this setting to be visible. If the setting is not set to either of these, this setting will not be visible.
-      ```json
-      {
-        "settings": [
-          // ...
-          {
-            "name": "Option",
-            "id": "option",
-            "type": "boolean",
-            "default": false,
-            "if": {
-              "settings": { "mode": ["forums", "new"] }
-            }
-          }
-        ]
-      }
-      ```
-   - `addonEnabled` (string / array of strings, optional) The addon(s) that must be enabled. If multiple addons are listed, only one has to be enabled for the sub-property to evaluate to `true`. The string(s) are the IDs of the addons.
-
-      In the following example, either the `debugger` or `clones` addon must be enabled for this setting to be visible. If neither of these addons are enabled, this setting will not be visible.
-      ```json
-      {
-        "settings": [
-          {
-            "name": "Option",
-            "id": "option",
-            "type": "boolean",
-            "default": false,
-            "if": {
-              "addonEnabled": ["debugger", "clones"]
-            }
-          }
-        ]
-      }
-      ```
+Sub-properties: 
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td>string</td>
+    <td>✔️</td>
+    <td>The user-visible text for the option.</td>
+  </tr>
+  <tr>
+    <td><code>id</code></td>
+    <td>string</td>
+    <td>✔️</td>
+    <td>An identifier to get the user-specified value from your code.</td>
+  </tr>
+  <tr>
+    <td><code>type</code></td>
+    <td>string</td>
+    <td>✔️</td>
+    <td>Must be either <code>boolean</code>, <code>positive_integer</code>, <code>integer</code>, <code>decimal</code>,<code>string</code>, <code>color</code>, <code>table</code> (see <code>row</code>), or <code>select</code> (see <code>potential_values</code>).</td>
+  </tr>
+  <tr>
+    <td><code>default</code></td>
+    <td>-</td>
+    <td>✔️</td>
+    <td>The default value for the option. A boolean, string, or number, depending on the specified type.</td>
+  </tr>
+  <tr>
+    <td><code>min</code>/<code>max</code></td>
+    <td>number</td>
+    <td>❌ <code>positive_integer</code>, <code>integer</code>, <code>decimal</code> or <code>string</code> type only.</td>
+    <td>For numbers, the minimum/maximum value allowed, and for strings, the minimum/maximum allowed length of the value.</td>
+  </tr>
+  <tr>
+    <td><code>untranslated</code></td>
+    <td>boolean</td>
+    <td>❌ <code>string</code> type only.</td>
+    <td>Whether `default` should be sent for translation or not.</td>
+  </tr>
+  <tr>
+    <td><code>allowTransparency</code></td>
+    <td>boolean</td>
+    <td>✔️ <code>color</code> type only.</td>
+    <td>Whether the user should be allowed to enter transparent colors or not.</td>
+  </tr>
+  <tr>
+    <td><code>potentialValues</code></td>
+    <td>Array of objects</td>
+    <td>✔️ <code>select</code> type only.</td>
+    <td>Each object has properties for `id`, the value received from <code>addon.settings.get()</code>, and <code>name</code>, the user-visible option text.</td>
+  </tr>
+  <tr>
+    <td><code>row</code></td>
+    <td>Array of objects</td>
+    <td>✔️ <code>table</code> type only.</td>
+    <td>Every element in table contains this array of objects. Each object should contain: <code>name</code>, <code>id</code>, <code>type</code> (any setting type other than <code>table</code>) and <code>default</code>.</td>
+  </tr>
+  <tr>
+    <td><code>if</code></td>
+    <td>Object</td>
+    <td>❌</td>
+    <td>Whether the setting should be shown to the user. See <a href=#if>if</a> for more information.</td>
+  </tr>
+</table>
 
 Example:
 ```json
@@ -703,10 +692,38 @@ An array of CSS variables that will be set if the addon is enabled. Each item is
 Provides information to the settings page about the latest update to this addon. Responsible for the "New options" tag and the New tag on individual addon settings. If not specified, no update-specific tags will be added.
 
 Sub-properties:
-- `version` (string, required) The version that this update applies to. If the value is the same as the current version of the extension, the addon will get the "New options" tag and display the indicators (if any) specified in `temporaryNotice` and `newSettings`.
-- `isMajor` (boolean, optional) Indicates if the addon should be included in the "Featured new addons and updates" category. Defaults to `false` if not specified. This will be discussed before merging the addon to the repository using the same discretion as the Featured or Recommended tags on regular new addons.
-- `temporaryNotice` (string, optional) A text description of the new features or changes. This will appear as a notice-style banner at the top of the info section (above any warnings or notices) when the addon has the "New options" tag. If not specified, no banner will be displayed.
-- `newSettings` (array of strings, optional) The IDs of any settings that should be designated as new in this update. These settings will display the New tag when the addon has the "New options" tag. If not specified, no settings will display the New tag.
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>version</code></td>
+    <td>string</td>
+    <td>✔️</td>
+    <td>The version that this update applies to. If the value is the same as the current version of the extension, the addon will get the "New options" tag and display the indicators (if any) specified in <code>temporaryNotice</code> and <code>newSettings</code>.</td>
+  </tr>
+  <tr>
+    <td><code>isMajor</code></td>
+    <td>boolean</td>
+    <td>❌</td>
+    <td>Indicates if the addon should be included in the "Featured new addons and updates" category. Defaults to <code>false</code> if not specified. This will be discussed before merging the addon to the repository using the same discretion as the Featured or Recommended tags on regular new addons.</td>
+  </tr>
+  <tr>
+    <td><code>temporaryNotice</code></td>
+    <td>string</td>
+    <td>❌</td>
+    <td>A text description of the new features or changes. This will appear as a notice-style banner at the top of the info section (above any warnings or notices) when the addon has the "New options" tag. If not specified, no banner will be displayed.</td>
+  </tr>
+  <tr>
+    <td><code>newSettings</code></td>
+    <td>Array of strings</td>
+    <td>❌</td>
+    <td>The IDs of any settings that should be designated as new in this update. These settings will display the New tag when the addon has the "New options" tag. If not specified, no settings will display the New tag.</td>
+  </tr>
+</table>
 
 Example:
 ```json
